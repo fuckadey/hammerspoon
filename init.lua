@@ -19,9 +19,9 @@ function Sound.toggle()
     SystemKey.emulate("MUTE")
 end
 
-local Meta = { "shift", "ctrl", "cmd" }
+local Super = { "shift", "ctrl", "cmd" }
 
-hs.hotkey.bind(Meta, "down", Sound.toggle)
-hs.hotkey.bind(Meta, "right", Sound.up)
-hs.hotkey.bind(Meta, "left", Sound.down)
+hs.hotkey.bind(Super, "down", Sound.toggle)
+hs.hotkey.bind(Super, "right", Sound.up)
+hs.hotkey.bind(Super, "left", Sound.down)
 
