@@ -1,46 +1,27 @@
-function enableMicrophone()
-   local microphone = hs.audiodevice.defaultInputDevice()
+local SystemKey = SystemKey or {}
 
-   if microphone then
-      microphone:setInputMuted(false)
-   end
+function SystemKey.emulate(key)
+    hs.eventtap.event.newSystemKeyEvent(key, true):post()
+    hs.eventtap.event.newSystemKeyEvent(key, false):post()
 end
 
-function disableMicrophone()
-   local microphone = hs.audiodevice.defaultInputDevice()
+local Sound = Sound or {}
 
-   if microphone then
-      microphone:setInputMuted(true)
-   end
+function Sound.up()
+    SystemKey.emulate("SOUND_UP")
 end
 
-function toggleMicrophone()
-   local microphone = hs.audiodevice.defaultInputDevice()
-
-   if not microphone then
-      return
-   end
-
-   local next = not microphone:muted()
-
-   microphone:setInputMuted(next)
-
-   local state
-
-   if next then
-      state = "muted"
-   else
-      state = "unmuted"
-   end
-
-   hs.alert("Your microphone is now " .. state .. ".")
+function Sound.down()
+    SystemKey.emulate("SOUND_DOWN")
 end
 
-hs.hotkey.bind({}, "pad0", toggleMicrophone)
-hs.hotkey.bind({}, "padenter", enableMicrophone, disableMicrophone)
-
-function reloadConfiguration()
-   hs.reload()
+function Sound.toggle()
+    SystemKey.emulate("MUTE")
 end
 
-hs.hotkey.bind({}, "pad/", reloadConfiguration)
+local Meta = { "shift", "ctrl", "cmd" }
+
+hs.hotkey.bind(Meta, "down", Sound.toggle)
+hs.hotkey.bind(Meta, "right", Sound.up)
+hs.hotkey.bind(Meta, "left", Sound.down)
+
