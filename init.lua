@@ -22,6 +22,6 @@ end
 local Super = { "shift", "ctrl", "cmd" }
 
 hs.hotkey.bind(Super, "down", Sound.toggle)
-hs.hotkey.bind(Super, "right", Sound.up)
-hs.hotkey.bind(Super, "left", Sound.down)
+hs.hotkey.bind(Super, "right", Sound.up, nil, Sound.up)
+hs.hotkey.bind(Super, "left", Sound.down, nil, Sound.down)
 
