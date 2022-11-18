@@ -1,27 +1,28 @@
-local SystemKey = SystemKey or {}
+local My = My or {}
 
-function SystemKey.emulate(key)
+My.SystemKey = {}
+
+function My.SystemKey.emulate(key)
     hs.eventtap.event.newSystemKeyEvent(key, true):post()
     hs.eventtap.event.newSystemKeyEvent(key, false):post()
 end
 
-local Sound = Sound or {}
+My.Sound = {}
 
-function Sound.up()
-    SystemKey.emulate("SOUND_UP")
+function My.Sound.up()
+    My.SystemKey.emulate("SOUND_UP")
 end
 
-function Sound.down()
-    SystemKey.emulate("SOUND_DOWN")
+function My.Sound.down()
+    My.SystemKey.emulate("SOUND_DOWN")
 end
 
-function Sound.toggle()
-    SystemKey.emulate("MUTE")
+function My.Sound.toggle()
+    My.SystemKey.emulate("MUTE")
 end
 
 local Super = { "shift", "ctrl", "cmd" }
 
-hs.hotkey.bind(Super, "down", Sound.toggle)
-hs.hotkey.bind(Super, "right", Sound.up, nil, Sound.up)
-hs.hotkey.bind(Super, "left", Sound.down, nil, Sound.down)
-
+hs.hotkey.bind(Super, "down", My.Sound.toggle)
+hs.hotkey.bind(Super, "right", My.Sound.up, nil, My.Sound.up)
+hs.hotkey.bind(Super, "left", My.Sound.down, nil, My.Sound.down)
