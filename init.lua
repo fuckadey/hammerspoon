@@ -24,8 +24,8 @@ function My.Sound.toggle()
 end
 
 
-local Super = { "shift", "ctrl", "cmd" }
+local My.Super = { "shift", "ctrl", "cmd" }
 
-hs.hotkey.bind(Super, "down", My.Sound.toggle)
-hs.hotkey.bind(Super, "right", My.Sound.up, nil, My.Sound.up)
-hs.hotkey.bind(Super, "left", My.Sound.down, nil, My.Sound.down)
+hs.hotkey.bind(My.Super, "down", My.Sound.toggle)
+hs.hotkey.bind(My.Super, "right", My.Sound.up, nil, My.Sound.up)
+hs.hotkey.bind(My.Super, "left", My.Sound.down, nil, My.Sound.down)
