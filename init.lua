@@ -1,11 +1,13 @@
 local My = My or {}
 
+
 My.SystemKey = {}
 
 function My.SystemKey.emulate(key)
     hs.eventtap.event.newSystemKeyEvent(key, true):post()
     hs.eventtap.event.newSystemKeyEvent(key, false):post()
 end
+
 
 My.Sound = {}
 
@@ -20,6 +22,7 @@ end
 function My.Sound.toggle()
     My.SystemKey.emulate("MUTE")
 end
+
 
 local Super = { "shift", "ctrl", "cmd" }
 
