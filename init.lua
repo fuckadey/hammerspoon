@@ -1,31 +1,60 @@
-local My = My or {}
+local my = {
+    leader = { "shift", "ctrl", "cmd" },
+}
 
 
-My.SystemKey = {}
+my.system = {
+    key = {},
+}
 
-function My.SystemKey.emulate(key)
-    hs.eventtap.event.newSystemKeyEvent(key, true):post()
-    hs.eventtap.event.newSystemKeyEvent(key, false):post()
+function my.system.key.emulate (name)
+    hs.eventtap.event.newSystemKeyEvent(name, true):post()
+    hs.eventtap.event.newSystemKeyEvent(name, false):post()
 end
 
 
-My.Sound = {}
+my.sound = {
+    input = {},
+    output = {},
+}
 
-function My.Sound.up()
-    My.SystemKey.emulate("SOUND_UP")
+hs.microphoneState(true)
+
+function my.sound.input.device ()
+    return hs.audiodevice.defaultInputDevice()
 end
 
-function My.Sound.down()
-    My.SystemKey.emulate("SOUND_DOWN")
+function my.sound.input.mute ()
+    local mic = my.sound.input.device()
+
+    if mic then
+        mic:setMuted(true)
+    end
 end
 
-function My.Sound.toggle()
-    My.SystemKey.emulate("MUTE")
+my.sound.input.mute()
+
+function my.sound.input.unmute ()
+    local mic = my.sound.input.device()
+
+    if mic then
+        mic:setMuted(false)
+    end
 end
 
+function my.sound.output.up ()
+    my.system.key.emulate("SOUND_UP")
+end
 
-local My.Super = { "shift", "ctrl", "cmd" }
+function my.sound.output.down ()
+    my.system.key.emulate("SOUND_DOWN")
+end
 
-hs.hotkey.bind(My.Super, "down", My.Sound.toggle)
-hs.hotkey.bind(My.Super, "right", My.Sound.up, nil, My.Sound.up)
-hs.hotkey.bind(My.Super, "left", My.Sound.down, nil, My.Sound.down)
+function my.sound.output.toggle ()
+    my.system.key.emulate("MUTE")
+end
+
+hs.hotkey.bind(my.leader, "up", my.sound.input.unmute, my.sound.input.mute)
+hs.hotkey.bind(my.leader, "right", my.sound.output.up, nil, my.sound.output.up)
+hs.hotkey.bind(my.leader, "left", my.sound.output.down, nil, my.sound.output.down)
+hs.hotkey.bind(my.leader, "down", my.sound.output.toggle)
