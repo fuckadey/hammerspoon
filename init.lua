@@ -3,6 +3,91 @@ local my = {
 }
 
 
+my.hud = {
+    padding = 2,
+    radius = 9,
+    clock = {
+        timer = nil,
+        instance = nil,
+        size = {
+            h = 18,
+            w = 100,
+        },
+    },
+}
+
+do
+    local padding, radius = my.hud.padding, my.hud.radius
+    local h = my.hud.clock.size.h + (padding * 2)
+    local w = my.hud.clock.size.w + (padding * 2)
+    local frame = hs.screen.primaryScreen():fullFrame()
+    local x = frame.w - w
+    local y = frame.h - h
+    local canvas = hs.canvas.new( { x = x, y = y, h = h, w = w, } )
+
+    canvas:insertElement( {
+        action = "build",
+        type = "rectangle",
+        padding = 0,
+    } )
+
+    canvas:insertElement( {
+        action = "clip",
+        type = "rectangle",
+        padding = padding,
+    } )
+
+    canvas:insertElement( {
+        action = "fill",
+        type = "rectangle",
+        padding = padding,
+        fillColor = { alpha = 1, red = 0.98, green = 0.86, blue = 0.46, },
+        frame = {
+            x = padding,
+            y = padding,
+            h = my.hud.clock.size.h,
+            w = my.hud.clock.size.w,
+        },
+        roundedRectRadii = { xRadius = radius, yRadius = radius, },
+    } )
+
+    canvas:insertElement( {
+        action = "fill",
+        type = "text",
+        padding = padding,
+        frame = { x = "0", y = "5%", w = "1", h = "1", },
+        text = "👾",
+        textAlignment = "center",
+        textColor = { white = 0.35, },
+        textSize = 13,
+    } )
+
+    my.hud.clock.instance = canvas
+end
+
+do
+    local count = my.hud.clock.instance:elementCount()
+
+    my.hud.clock.timer = hs.timer.new(0.5, function () -- To redraw the date every half a second is precise enough for my needs
+        my.hud.clock.instance:elementAttribute(count, "text", os.date("%d %b %H:%M"))
+    end )
+end
+
+-- Hammerspoon uses positional booleans to start watching for certain mouse events on canvas
+-- See https://www.hammerspoon.org/docs/hs.canvas.html#canvasMouseEvents
+my.hud.clock.instance:canvasMouseEvents(true)
+
+my.hud.clock.instance:mouseCallback( function (_, name)
+    if name == "mouseDown" then
+        hs.application.launchOrFocus("Calendar")
+    end
+end )
+
+my.hud.clock.instance:show()
+
+my.hud.clock.timer:start()
+
+
 my.system = {
     key = {},
 }
@@ -32,6 +117,7 @@ function my.sound.input.mute ()
     end
 end
 
+-- Ensure microphone is disabled when system starts
 my.sound.input.mute()
 
 function my.sound.input.unmute ()
@@ -54,7 +140,34 @@ function my.sound.output.toggle ()
     my.system.key.emulate("MUTE")
 end
 
+-- Ensure speaker is disabled when system starts
+hs.audiodevice.defaultOutputDevice():setMuted(true)
+
 hs.hotkey.bind(my.leader, "up", my.sound.input.unmute, my.sound.input.mute)
 hs.hotkey.bind(my.leader, "right", my.sound.output.up, nil, my.sound.output.up)
 hs.hotkey.bind(my.leader, "left", my.sound.output.down, nil, my.sound.output.down)
 hs.hotkey.bind(my.leader, "down", my.sound.output.toggle)
+
+
+my.mail = {}
+
+-- Close Proton Mail Bridge window if connection is available
+do
+    local onStatusChange = function (monitor, flags)
+        if (flags & hs.network.reachability.flags.reachable) > 0 then
+            if hs.window'Proton Mail Bridge' then
+                hs.window'Proton Mail Bridge':close()
+            end
+
+            monitor:stop()
+        end
+    end
+
+    hs.network.reachability.forHostName("pm.me"):setCallback(onStatusChange):start()
+end
+
+function my.mail.open ()
+    hs.application.launchOrFocus("Mail")
+end
+
+hs.hotkey.bind(my.leader, "m", my.mail.open)
