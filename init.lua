@@ -1,6 +1,13 @@
 local my = {
     leader = { "shift", "ctrl", "cmd" },
+    std = {},
 }
+
+function my.std.rgba (red, green, blue, alpha)
+    alpha = alpha or 1
+
+    return { red = red / 255, green = green / 255, blue = blue / 255, alpha = alpha, }
+end
 
 
 my.hud = {
@@ -41,7 +48,7 @@ do
         action = "fill",
         type = "rectangle",
         padding = padding,
-        fillColor = { alpha = 1, red = 0.98, green = 0.86, blue = 0.46, },
+        fillColor = my.std.rgba(251, 220, 117),
         frame = {
             x = padding,
             y = padding,
