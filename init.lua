@@ -158,19 +158,37 @@ hs.hotkey.bind(my.leader, "down", my.sound.output.toggle)
 
 my.mail = {}
 
--- Close Proton Mail Bridge window if connection is available
+-- Create hotkey to close Proton Mail Bridge window but keep the app running
 do
-    local onStatusChange = function (monitor, flags)
-        if (flags & hs.network.reachability.flags.reachable) > 0 then
-            if hs.window'Proton Mail Bridge' then
-                hs.window'Proton Mail Bridge':close()
-            end
+    local close = function ()
+        hs.window'Proton Mail Bridge':close()
+    end
 
-            monitor:stop()
+    local key = hs.hotkey.new({ "cmd" }, "w", close)
+
+    local map = {
+        [hs.application.watcher.activated] = function ()
+            key:enable()
+        end,
+
+        [hs.application.watcher.deactivated] = function ()
+            key:disable()
+        end,
+    }
+
+    local onAppChange = function (name, event, app)
+        if name ~= "Proton Mail Bridge" then
+            return
+        end
+
+        local action = map[event]
+
+        if action then
+            action()
         end
     end
 
-    hs.network.reachability.forHostName("pm.me"):setCallback(onStatusChange):start()
+    hs.application.watcher.new(onAppChange):start()
 end
 
 function my.mail.open ()
