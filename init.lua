@@ -158,6 +158,7 @@ hs.hotkey.bind(my.leader, "down", my.sound.output.toggle)
 
 my.mail = {}
 
+-- TODO Proton Mail Bridge seems not to open the window on startup after latest update, remove if unnecessary.
 -- Create hotkey to close Proton Mail Bridge window but keep the app running
 do
     local close = function ()
