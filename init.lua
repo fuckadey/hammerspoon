@@ -9,6 +9,37 @@ function my.std.rgba (red, green, blue, alpha)
     return { red = red / 255, green = green / 255, blue = blue / 255, alpha = alpha, }
 end
 
+function my.std.customKey(app, leader, key, callback)
+    local key = hs.hotkey.new(leader, key, callback)
+
+    local enable = function ()
+        key:enable()
+    end
+
+    local disable = function ()
+        key:disable()
+    end
+
+    local map = {
+        [hs.application.watcher.activated] = enable,
+        [hs.application.watcher.deactivated] = disable,
+    }
+
+    local handle = function (name, event, more)
+        if app ~= name then
+            return
+        end
+
+        local action = map[event]
+
+        if action ~= nil then
+            action()
+        end
+    end
+
+    hs.application.watcher.new(handle):start()
+end
+
 
 my.hud = {
     padding = 2,
@@ -157,40 +188,6 @@ hs.hotkey.bind(my.leader, "down", my.sound.output.toggle)
 
 
 my.mail = {}
-
--- TODO Proton Mail Bridge seems not to open the window on startup after latest update, remove if unnecessary.
--- Create hotkey to close Proton Mail Bridge window but keep the app running
-do
-    local close = function ()
-        hs.window'Proton Mail Bridge':close()
-    end
-
-    local key = hs.hotkey.new({ "cmd" }, "w", close)
-
-    local map = {
-        [hs.application.watcher.activated] = function ()
-            key:enable()
-        end,
-
-        [hs.application.watcher.deactivated] = function ()
-            key:disable()
-        end,
-    }
-
-    local onAppChange = function (name, event, app)
-        if name ~= "Proton Mail Bridge" then
-            return
-        end
-
-        local action = map[event]
-
-        if action then
-            action()
-        end
-    end
-
-    hs.application.watcher.new(onAppChange):start()
-end
 
 function my.mail.open ()
     hs.application.launchOrFocus("Mail")
