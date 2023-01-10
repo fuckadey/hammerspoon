@@ -103,10 +103,11 @@ do
     my.hud.clock.instance = canvas
 end
 
+ -- To redraw the date every half a second is precise enough for me
 do
     local count = my.hud.clock.instance:elementCount()
 
-    my.hud.clock.timer = hs.timer.new(0.5, function () -- To redraw the date every half a second is precise enough for my needs
+    my.hud.clock.timer = hs.timer.new(0.5, function ()
         my.hud.clock.instance:elementAttribute(count, "text", os.date("%d %b %H:%M"))
     end )
 end
@@ -121,8 +122,8 @@ my.hud.clock.instance:mouseCallback( function (_, name)
     end
 end )
 
+-- Run the widget
 my.hud.clock.instance:show()
-
 my.hud.clock.timer:start()
 
 
@@ -194,3 +195,37 @@ function my.mail.open ()
 end
 
 hs.hotkey.bind(my.leader, "m", my.mail.open)
+
+
+-- Sync source code changes with remote environment
+do
+    local onConnected = function ()
+        hs.execute("mutagen daemon start", true)
+    end
+
+    local ping = hs.network.reachability.forHostName("cmd.vm"):setCallback(onConnected)
+
+    local onLaunch = function ()
+        ping:start()
+    end
+
+    local onTerminate = function ()
+        ping:stop()
+
+        hs.execute("mutagen daemon stop", true)
+    end
+
+    local handler = function (name, event, instance)
+        if name ~= "Parallels Desktop" then
+            return
+        end
+
+        if event == hs.application.watcher.launched then
+            onLaunch()
+        elseif event == hs.application.watcher.terminated then
+            onTerminate()
+        end
+    end
+
+    hs.application.watcher.new(handler):start()
+end
